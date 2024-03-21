@@ -1,0 +1,164 @@
+
+
+" K
+" Opts
+set dotfiles
+set vicmd=nvim
+set shell=/usr/bin/zsh
+set vifminfo+=tabs
+set viewcolumns=*{name}..,16{mtime},7{}.
+set statusline=" %{system('file -b ' . expand('%c'))}%=%A   %u:%g           %a / %c "
+set timeoutlen=30000
+
+if executable('vifm-media')
+    set mediaprg=vifm-media
+endif
+
+
+" Commands
+command! diff nvim -d %f %F
+
+if executable('fzf')
+    command! fzf :!fzf --multi
+    if executable('wl-copy')
+        command! fzf :!fzf --multi | tr '\n' ' ' | wl-copy
+    elseif executable('xclip')
+        command! fzf :!fzf --multi | tr '\n' ' ' | xclip -selection clipboard
+    endif
+
+    command! FZFfind : set noquickview
+                    \| let $FZF_PICK = term('find | fzf --height 10 2>/dev/tty')
+                    \| if $FZF_PICK != ''
+                    \|     execute 'goto' fnameescape($FZF_PICK)
+                    \| endif
+
+    if executable('locate')
+        command! FZFlocate : set noquickview
+                          \| let $FZF_PICK = term('locate $HOME | fzf --height 10 2>/dev/tty')
+                          \| if $FZF_PICK != ''
+                          \|     execute 'goto' fnameescape($FZF_PICK)
+                          \| endif
+    endif
+endif
+
+if executable('atool')
+    command! archive :!atool -a %a %f
+    command! unarchive :!atool -X %a %f
+endif
+
+if $WAYLAND_DISPLAY
+    if executable('wl-copy')
+        " Yank current file name into primary and selection clipboards
+        nnoremap yn :!echo -n %c | wl-copy %i &&
+                    \ echo -n %c | wl-copy -p %i<cr>
+    endif
+elseif $DISPLAY
+    if executable('xclip')
+        " Yank current file name into the clipboard
+        nnoremap yn :!echo -n %c | xclip -selection clipboard %i<cr>
+    elseif executable('xsel')
+        " Yank current file name into primary and selection clipboards
+        nnoremap yn :!echo -n %c | xsel --input --primary %i &&
+                    \ echo -n %c | xsel --clipboard --input %i<cr>
+    endif
+endif
+
+if executable('wl-paste')
+    command! pastescreenshot :!wl-paste > %a.png
+elseif executable('xclip')
+    command! pastescreenshot :!xclip -selection c -o -t image/png > %a.png
+endif
+
+
+" Maps
+nnoremap Q :qall<cr>
+nnoremap r cw
+nnoremap o :touch<space>
+nnoremap O :mkdir<space>
+nnoremap ~ :cd ~<cr>
+nnoremap ` :cd /<cr>
+nnoremap <a-q> :view<cr>
+nnoremap t :tabnext<cr>
+nnoremap T :tabprev<cr>
+nnoremap <c-t> :tabnew<cr>
+nnoremap zc :archive<space>
+nnoremap zu :unarchive<space>
+
+map <space> <nop>
+nnoremap <space><space> t
+nnoremap <space>c :cd<space>
+nnoremap <space>r :rename<cr>
+nnoremap <space>b :bmarks<cr>
+nnoremap <space>B :bmark<space>
+nnoremap <space>h :history<cr>
+nnoremap <space>ps :pastescreenshot<space>
+
+if $TERM_PROGRAM == 'tmux'
+    nnoremap <c-v> :!tmux new-window nvim -p %f:p<cr>
+    nnoremap <a-v> :!tmux new-window nvim<cr>
+    nnoremap <c-s> :!tmux new-window<cr>
+elseif $TERM == 'screen'
+    nnoremap <c-v> :!screen nvim -p %f:p<cr>
+    nnoremap <a-v> :!screen nvim<cr>
+    nnoremap <c-s> :!screen<cr>
+elseif executable('konsole')
+    nnoremap <c-v> :!konsole --new-tab --workdir %d -e nvim -p %f:p<cr>
+    nnoremap <a-v> :!konsole --new-tab --workdir %d -e nvim<cr>
+    nnoremap <c-s> :!konsole --new-tab --workdir %d<cr>
+endif
+
+if executable('fzf')
+    nnoremap fz :fzf<cr>
+    nnoremap ft :!!find -printf "%%T@ %%Tc %%p\n" | sort -n<cr>
+    nnoremap fg :FZFfind<cr>
+    if executable('locate')
+        nnoremap fc :FZFlocate<cr>
+    endif
+endif
+
+if executable('dragon-drop')
+    nnoremap <space>x :!dragon-drop %f &<cr>
+    nnoremap <space>X :!dragon-drop --target &<cr>
+endif
+
+
+" Theme
+highlight StatusLine ctermfg=234
+highlight StatusLine ctermbg=59
+
+highlight CurrLine ctermfg=102
+highlight CurrLine ctermbg=234
+
+highlight TopLineSel ctermfg=234
+highlight TopLineSel ctermbg=102
+
+highlight TopLine ctermfg=245
+highlight TopLine ctermbg=236
+
+highlight TabLine ctermfg=250
+highlight TabLine ctermbg=none
+
+highlight OtherLine ctermbg=236
+highlight OtherLine ctermfg=245
+
+highlight WildMenu ctermfg=237
+highlight TabLineSel ctermbg=234
+highlight Win ctermbg=none
+highlight CmdLine ctermbg=none
+highlight Border ctermbg=none
+
+
+" Fileviewers/filextypes
+fileviewer <image/*> img2txt %c
+
+filextype {*.odt,*.doc,*.docx,*.xls,*.xlsx,*.odp,*.pptx,*.ppt},
+          \ <application/vnd.openxmlformats-officedocument.*,
+          \ application/msword,
+          \ application/vnd.ms-excel>
+          \ onlyoffice %d/%c &
+
+
+" Sources
+if filereadable(expand('$VIFM/icons'))
+    source $VIFM/icons
+endif
