@@ -90,7 +90,9 @@ nnoremap <space>c :cd<space>
 nnoremap <space>r :rename<cr>
 nnoremap <space>b :bmarks<cr>
 nnoremap <space>B :bmark<space>
-nnoremap <space>h :history<cr>
+nnoremap <space>hh :history<cr>
+nnoremap <space>hn :histnext<cr>
+nnoremap <space>hp :histprev<cr>
 nnoremap <space>ps :pastescreenshot<space>
 
 if $TERM_PROGRAM == 'tmux'
