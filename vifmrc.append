@@ -44,6 +44,12 @@ endif
 if executable('atool')
     command! archive :!atool -a %a %f
     command! unarchive :!atool -X %a %f
+    nnoremap <space>zc :archive<space>
+    nnoremap <space>zu :unarchive<space>
+endif
+
+if executable('7z')
+    nnoremap <space>z7 :!7z x -o%c:r %c<cr>
 endif
 
 if $WAYLAND_DISPLAY
@@ -81,8 +87,6 @@ nnoremap <a-q> :view<cr>
 nnoremap t :tabnext<cr>
 nnoremap T :tabprev<cr>
 nnoremap <c-t> :tabnew<cr>
-nnoremap zc :archive<space>
-nnoremap zu :unarchive<space>
 
 map <space> <nop>
 nnoremap <space><space> t
