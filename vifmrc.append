@@ -25,12 +25,14 @@ if executable('fzf')
     elseif executable('xclip')
         command! fzf :!fzf --multi | tr '\n' ' ' | xclip -selection clipboard
     endif
+    nnoremap <space>fzf :fzf<cr>
 
     command! FZFfind : set noquickview
                     \| let $FZF_PICK = term('find | fzf --height 10 2>/dev/tty')
                     \| if $FZF_PICK != ''
                     \|     execute 'goto' fnameescape($FZF_PICK)
                     \| endif
+    nnoremap <space>fzg :FZFfind<cr>
 
     if executable('locate')
         command! FZFlocate : set noquickview
@@ -38,6 +40,7 @@ if executable('fzf')
                           \| if $FZF_PICK != ''
                           \|     execute 'goto' fnameescape($FZF_PICK)
                           \| endif
+        nnoremap <space>fzc :FZFlocate<cr>
     endif
 endif
 
@@ -98,6 +101,7 @@ nnoremap <space>hh :history<cr>
 nnoremap <space>hn :histnext<cr>
 nnoremap <space>hp :histprev<cr>
 nnoremap <space>ps :pastescreenshot<space>
+nnoremap <space>ft :!!find -printf "%%T@ %%Tc %%p\n" | sort -n<cr>
 
 if $TERM_PROGRAM == 'tmux'
     nnoremap <c-v> :!tmux new-window nvim -p %f:p<cr>
@@ -111,15 +115,6 @@ elseif executable('konsole')
     nnoremap <c-v> :!konsole --new-tab --workdir %d -e nvim -p %f:p<cr>
     nnoremap <a-v> :!konsole --new-tab --workdir %d -e nvim<cr>
     nnoremap <c-s> :!konsole --new-tab --workdir %d<cr>
-endif
-
-if executable('fzf')
-    nnoremap fz :fzf<cr>
-    nnoremap ft :!!find -printf "%%T@ %%Tc %%p\n" | sort -n<cr>
-    nnoremap fg :FZFfind<cr>
-    if executable('locate')
-        nnoremap fc :FZFlocate<cr>
-    endif
 endif
 
 if executable('dragon-drop')
