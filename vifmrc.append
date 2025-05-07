@@ -55,13 +55,13 @@ if executable('7z')
     nnoremap <space>z7 :!7z x -o%c:r %c<cr>
 endif
 
-if $WAYLAND_DISPLAY
+if $WAYLAND_DISPLAY != ''
     if executable('wl-copy')
         " Yank current file name into primary and selection clipboards
         nnoremap yn :!echo -n %c | wl-copy %i &&
                     \ echo -n %c | wl-copy -p %i<cr>
     endif
-elseif $DISPLAY
+elseif $DISPLAY != ''
     if executable('xclip')
         " Yank current file name into the clipboard
         nnoremap yn :!echo -n %c | xclip -selection clipboard %i<cr>
